@@ -1,0 +1,31 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: "Nunito", sans-serif;
+  font-family: "Roboto Condensed", sans-serif;
+}
+html {
+  scroll-behavior: smooth;
+}
+.container {
+  width: 80%;
+  margin: 0 auto;
+  max-width: 1400px;
+}
+
+@media screen and (max-width: 991.98px) {
+  .container {
+    width: 85%;
+  }
+}
+@media screen and (max-width: 767.98px) {
+  .container {
+    width: 90%;
+  }
+}
+@media screen and (max-width: 575.98px) {
+  .container {
+    width: 95%;
+  }
+}
