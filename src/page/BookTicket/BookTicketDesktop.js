@@ -1,9 +1,13 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
-import { bookTicket, getTicketRoom } from "../../Services/api";
+import { bookTicket, createTicket, getTicketRoom } from "../../Services/api";
 import "./ticket.scss";
 import { useDispatch, useSelector } from "react-redux";
-import { addTicket, clearThongTinDatVe, handlePayments } from "../../redux/reducer/bookingReducer";
+import {
+  addTicket,
+  clearThongTinDatVe,
+  handlePayments,
+} from "../../redux/reducer/bookingReducer";
 import { localService } from "../../Services/localService";
 import { ThongTinDatVe } from "../../model/ThongTinDatVe";
 
@@ -18,14 +22,14 @@ export default function BookTicketDesktop() {
     dispatch(handlePayments(e.target.value));
   };
   let dispatch = useDispatch();
-  let { danhSachGheDangDat, isDisabled, classBtnBuyTicket, radioValue } = useSelector(
-    (state) => state.bookingReducer,
-  );
+  let { danhSachGheDangDat, isDisabled, classBtnBuyTicket, radioValue } =
+    useSelector((state) => state.bookingReducer);
 
   let fetchThongTinPhongVe = () => {
     getTicketRoom(param.id)
       .then((res) => {
-        setTicketRoom(res.data.content);
+        setTicketRoom(res.data);
+        console.log(res.data);
       })
       .catch((err) => {
         console.log(err);
@@ -39,10 +43,10 @@ export default function BookTicketDesktop() {
     fetchThongTinPhongVe();
   }, []);
 
-  const handleBookTicket = () => {
+  const handleBookTicket = async () => {
     let thongTinDatVe = new ThongTinDatVe();
-    thongTinDatVe.maLichChieu = Number(param.id);
-    thongTinDatVe.danhSachVe = danhSachGheDangDat;
+    thongTinDatVe.user = localService.get()?._id;
+    thongTinDatVe.listSeat = danhSachGheDangDat.map((seat) => seat._id);
     Swal.fire({
       title: "Bạn có muốn thanh toán ?",
       icon: "info",
@@ -52,10 +56,22 @@ export default function BookTicketDesktop() {
       showDenyButton: true,
       denyButtonText: `Cancel`,
       showCloseButton: true,
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        Swal.fire("Bạn đã thanh toán thành công!", "Vui lòng kiểm tra lịch sử đặt vé.", "success");
-        bookTicket(thongTinDatVe)
+        Swal.fire(
+          "Bạn đã thanh toán thành công!",
+          "Vui lòng kiểm tra lịch sử đặt vé.",
+          "success"
+        );
+        await createTicket({
+          user: localService.get()?._id,
+          showtimeId: param.id,
+          seatId: danhSachGheDangDat.map((seat) => seat._id),
+        });
+        await bookTicket({
+          user: localService.get()?._id,
+          listSeat: danhSachGheDangDat.map((seat) => seat._id),
+        })
           .then((res) => {
             setTimeout(() => {
               fetchThongTinPhongVe();
@@ -72,15 +88,15 @@ export default function BookTicketDesktop() {
   };
 
   const renderSeats = () => {
-    return ticketRoom.danhSachGhe?.map((item, index) => {
-      let classGheVip = item.loaiGhe === "Vip" ? "gheVip" : "";
-      let classGheDaDat = item.daDat ? "gheDaDat" : "";
+    return ticketRoom.listSeat?.map((item, index) => {
+      let classGheVip = item.type === "Vip" ? "gheVip" : "";
+      let classGheDaDat = item.isBook ? "gheDaDat" : "";
       let indexGheDangChon = danhSachGheDangDat.findIndex((gheDangDat) => {
-        return gheDangDat.maGhe === item.maGhe;
+        return gheDangDat._id === item._id;
       });
       let cssGheDangDat = "";
       let classGheDaDuocDat = "";
-      if (localService.get()?.taiKhoan === item.taiKhoanNguoiDat) {
+      if (localService.get()?._id === item.user) {
         classGheDaDuocDat = "gheDaDuocDat";
       }
       if (indexGheDangChon !== -1) {
@@ -92,16 +108,17 @@ export default function BookTicketDesktop() {
             onClick={() => {
               dispatch(addTicket(item));
             }}
-            disabled={item.daDat}
-            className={`ghe ${classGheVip} ${classGheDaDat} ${cssGheDangDat} ${classGheDaDuocDat}`}>
-            {item.daDat ? (
+            disabled={item.isBook}
+            className={`ghe ${classGheVip} ${classGheDaDat} ${cssGheDangDat} ${classGheDaDuocDat}`}
+          >
+            {item.isBook ? (
               classGheDaDuocDat !== "" ? (
-                <i className='fa-regular fa-user'></i>
+                <i className="fa-regular fa-user"></i>
               ) : (
-                <i className='fa-solid fa-x'></i>
+                <i className="fa-solid fa-x"></i>
               )
             ) : (
-              item.tenGhe
+              item.name
             )}
           </button>
           {(index + 1) % 16 === 0 ? <br /> : ""}
@@ -111,18 +128,19 @@ export default function BookTicketDesktop() {
   };
   let renderTenGhe = () => {
     return danhSachGheDangDat.map((item, index) => {
-      return <Fragment key={index}>{item.tenGhe} </Fragment>;
+      return <Fragment key={index}>{item.name} </Fragment>;
     });
   };
   return (
-    <div className='mb-10'>
+    <div className="mb-10">
       <div
         style={{
-          background: `url(${ticketRoom.thongTinPhim?.hinhAnh})top center/cover no-repeat `,
+          background: `url(${ticketRoom.infoMovie?.movieImage})top center/cover no-repeat `,
           marginBottom: "40px",
           minHeight: "210px",
           position: "relative",
-        }}>
+        }}
+      >
         <div
           style={{
             background: `rgba(0,0,0,0.6)`,
@@ -131,112 +149,133 @@ export default function BookTicketDesktop() {
             left: 0,
             width: "100%",
             height: "100%",
-          }}>
-          <div className='text-center '>
-            <div className='container'>
-              <h1 className='font-semibold py-20 inline-block text-4xl text-white'>
-                Ticket-booking
+          }}
+        >
+          <div className="text-center ">
+            <div className="container">
+              <h1 className="font-semibold py-20 inline-block text-4xl text-white">
+                Đặt Vé
               </h1>
             </div>
           </div>
         </div>
       </div>
-      <div id='bookTicket'>
-        <div className='grid grid-cols-3 gap-8 hangGhe '>
-          <div className='col-span-2 container flex flex-col items-center'>
-            <div className='w-full'>
-              <div className='bg-black ' style={{ width: "100%", height: 15 }}></div>
-              <div className='trapezoid text-center mb-4'>
-                <h3 className=' text-black'>Screen</h3>
+      <div id="bookTicket">
+        <div className="grid grid-cols-3 gap-8 hangGhe ">
+          <div className="col-span-2 container flex flex-col items-center">
+            <div className="w-full">
+              <div
+                className="bg-black "
+                style={{ width: "100%", height: 15 }}
+              ></div>
+              <div className="trapezoid text-center mb-4">
+                <h3 className=" text-black">Màn Hình</h3>
               </div>
             </div>
             <div>{renderSeats()}</div>
-            <div className='flex justify-center items-center space-x-3 mt-4'>
-              <div className='flex flex-col items-center'>
-                <div className='w-10 h-10 border border-black rounded leading-10 text-center'>
-                  <i className='fa-solid fa-x'></i>
+            <div className="flex justify-center items-center space-x-3 mt-4">
+              <div className="flex flex-col items-center">
+                <div className="w-10 h-10 border border-black rounded leading-10 text-center">
+                  <i className="fa-solid fa-x"></i>
                 </div>
                 <p>Ghế đã được mua</p>
               </div>
-              <div className='flex flex-col items-center'>
-                <div className='w-10 h-10 bg-orange-400 rounded'></div>
+              <div className="flex flex-col items-center">
+                <div className="w-10 h-10 bg-orange-400 rounded"></div>
                 <p>Ghế Vip</p>
               </div>
-              <div className='flex flex-col items-center'>
-                <div className='w-10 h-10 bg-slate-200 rounded '></div>
+              <div className="flex flex-col items-center">
+                <div className="w-10 h-10 bg-slate-200 rounded "></div>
                 <p>Ghế thường</p>
               </div>
-              <div className='flex flex-col items-center'>
-                <div className='w-10 h-10 gheDangDat rounded '></div>
+              <div className="flex flex-col items-center">
+                <div className="w-10 h-10 gheDangDat rounded "></div>
                 <p>Ghế đang chọn</p>
               </div>
-              <div className='flex flex-col items-center'>
-                <div className='w-10 h-10 gheDaDuocDat rounded leading-10 text-center'>
-                  <i className='fa-regular fa-user'></i>
+              <div className="flex flex-col items-center">
+                <div className="w-10 h-10 gheDaDuocDat rounded leading-10 text-center">
+                  <i className="fa-regular fa-user"></i>
                 </div>
                 <p>Ghế bạn đã mua</p>
               </div>
             </div>
           </div>
-          <div id='info__ticket' className='border-2 border-gray-400 p-4 shadow-lg mr-5'>
-            <h3 className='text-center p-10 text-3xl text-orange-400 font-bold'>
+          <div
+            id="info__ticket"
+            className="border-2 border-gray-400 p-4 shadow-lg mr-5"
+          >
+            <h3 className="text-center p-10 text-3xl text-orange-400 font-bold">
               {danhSachGheDangDat
                 .reduce((tongTien, giaVe) => {
-                  return (tongTien += giaVe.giaVe);
+                  return (tongTien += giaVe.price);
                 }, 0)
                 .toLocaleString()}
               VND
             </h3>
 
-            <div className='billTitle'>
-              <p className='text-2xl'>{ticketRoom.thongTinPhim?.tenPhim}</p>
-              <p>{ticketRoom.thongTinPhim?.tenCumRap}</p>
+            <div className="billTitle">
+              <p className="text-2xl">{ticketRoom.infoMovie?.movieName}</p>
+              <p>{ticketRoom.infoMovie?.theaterComplexName}</p>
               <p>
-                {ticketRoom.thongTinPhim?.ngayChieu}
-                <span className='text-black mx-3'>~</span>
-                {ticketRoom.thongTinPhim?.gioChieu}
-                <span className='text-black mx-3'>-</span>
-                {ticketRoom.thongTinPhim?.tenRap}
+                {ticketRoom.infoMovie?.premiereDate}
+                <span className="text-black mx-3">~</span>
+                {ticketRoom.infoMovie?.premiereTime}
+                <span className="text-black mx-3">-</span>
+                {ticketRoom.infoMovie?.theaterName}
               </p>
             </div>
-            <div className='billTitle flex justify-between'>
+            <div className="billTitle flex justify-between">
               <p>Email</p>
               <span>{localService.get()?.email}</span>
             </div>
-            <div className='billTitle flex justify-between'>
+            <div className="billTitle flex justify-between">
               <p>Số điện thoại</p>
               <span>{localService.get()?.soDT}</span>
             </div>
 
-            <div className='billTitle flex justify-between'>
+            <div className="billTitle flex justify-between">
               <p>Ghế</p>
               <span>{renderTenGhe()}</span>
             </div>
-            <div className='px-4 py-6'>
-              <p className='font-semibold mb-4'>Chọn phương thức thanh toán</p>
-              <Radio.Group disabled={isDisabled} onChange={onChange} value={radioValue}>
-                <Space direction='vertical'>
+            <div className="px-4 py-6">
+              <p className="font-semibold mb-4">Chọn phương thức thanh toán</p>
+              <Radio.Group
+                disabled={isDisabled}
+                onChange={onChange}
+                value={radioValue}
+              >
+                <Space direction="vertical">
                   <Radio value={1}>
-                    <div className='flex items-center justify-between px-4'>
-                      <img src='../image/icon-ZaloPay.webp' width={40} alt='ZaloPay' />
-                      <span className='text-lg ml-4'>Thanh toán qua ZaloPay</span>
+                    <div className="flex items-center justify-between px-4">
+                      <img
+                        src="../image/icon-ZaloPay.webp"
+                        width={40}
+                        alt="ZaloPay"
+                      />
+                      <span className="text-lg ml-4">
+                        Thanh toán qua ZaloPay
+                      </span>
                     </div>
                   </Radio>
                   <Radio value={2}>
-                    <div className='flex items-center justify-between px-4'>
+                    <div className="flex items-center justify-between px-4">
                       <img
-                        className='rounded-xl'
-                        src='../image/icon_momo.png'
+                        className="rounded-xl"
+                        src="../image/icon_momo.png"
                         width={40}
-                        alt='momo'
+                        alt="momo"
                       />
-                      <span className='text-lg ml-4'>Thanh toán qua MoMo</span>
+                      <span className="text-lg ml-4">Thanh toán qua MoMo</span>
                     </div>
                   </Radio>
                   <Radio value={3}>
-                    <div className='flex items-center justify-between px-4'>
-                      <img src='../image/icon_atm.png' width={40} alt='icon_atm' />
-                      <span className='text-lg ml-4'>Thanh toán qua ATM</span>
+                    <div className="flex items-center justify-between px-4">
+                      <img
+                        src="../image/icon_atm.png"
+                        width={40}
+                        alt="icon_atm"
+                      />
+                      <span className="text-lg ml-4">Thanh toán qua ATM</span>
                     </div>
                   </Radio>
                 </Space>
@@ -247,12 +286,13 @@ export default function BookTicketDesktop() {
               onClick={() => {
                 handleBookTicket();
               }}
-              className={`w-full py-3 mt-3 ${classBtnBuyTicket} font-bold text-white rounded  duration-300`}>
+              className={`w-full py-3 mt-3 ${classBtnBuyTicket} font-bold text-white rounded  duration-300`}
+            >
               Đặt vé
             </button>
 
             <NavLink onClick={switchToProfile}>
-              <p className='text-center text-blue-400 hover:text-blue-700'>
+              <p className="text-center text-blue-400 hover:text-blue-700">
                 <i>Lịch sử đặt vé</i>
               </p>
             </NavLink>

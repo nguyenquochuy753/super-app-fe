@@ -1,8 +1,18 @@
 import axios from "axios";
-import { BASE_URL, configHeaders, https, MOVIE_URL } from "./config";
+import {
+  BASE_URL,
+  CINEMA_URL,
+  configHeaders,
+  https,
+  httpsCinema,
+  httpsDefault,
+  httpsShowtime,
+  httpsTicket,
+  MOVIE_URL,
+} from "./config";
 
 export let dangNhap = (values) => {
-  return https.post("QuanLyNguoiDung/DangNhap", values);
+  return https.post("users/login", values);
 };
 export let getBanner = () => {
   return axios({
@@ -13,7 +23,7 @@ export let getBanner = () => {
 };
 export let getListMovie = () => {
   return axios({
-    url: `${BASE_URL}QuanLyPhim/LayDanhSachPhim?maNhom=GP09`,
+    url: `${MOVIE_URL}movies`,
     method: "GET",
     headers: configHeaders(),
   });
@@ -21,37 +31,41 @@ export let getListMovie = () => {
 
 export let getInfoMovie = (id) => {
   return axios({
-    url: `${BASE_URL}QuanLyPhim/LayThongTinPhim?MaPhim=${id}`,
+    url: `${MOVIE_URL}movies/${id}`,
     method: "GET",
     headers: configHeaders(),
   });
 };
 export let userRegister = (values) => {
-  return https.post("QuanLyNguoiDung/DangKy", values);
+  return https.post("users/register", values);
 };
 export let getMovieTheater = () => {
   return axios({
-    url: `${BASE_URL}QuanLyRap/LayThongTinLichChieuHeThongRap?maNhom=GP03`,
+    url: `${CINEMA_URL}cinemaSystem/theatercomplex`,
     method: "GET",
     headers: configHeaders(),
   });
 };
 export let getInfoShowtimes = (id) => {
   return axios({
-    url: `${BASE_URL}QuanLyRap/LayThongTinLichChieuPhim?MaPhim=${id}`,
+    url: `${CINEMA_URL}cinemaSystem/movies/${id}`,
     method: "GET",
     headers: configHeaders(),
   });
 };
 export let getTicketRoom = (id) => {
-  return https.get(`QuanLyDatVe/LayDanhSachPhongVe?MaLichChieu=${id}`);
+  return httpsShowtime.get(`showtimes/info/${id}`);
 };
 export let bookTicket = (values) => {
-  return https.post("QuanLyDatVe/DatVe", values);
+  return httpsCinema.post("seat/booking", values);
 };
 
-export let getThongTinTaiKhoan = () => {
-  return https.post("QuanLyNguoiDung/ThongTinTaiKhoan");
+export let createTicket = (values) => {
+  return httpsTicket.post("ticket/create", values);
+};
+
+export let getThongTinTaiKhoan = (id) => {
+  return httpsTicket.get(`ticket/user/${id}`);
 };
 
 export let updateUserInfo = (values) => {

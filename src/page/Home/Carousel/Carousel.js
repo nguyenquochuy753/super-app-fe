@@ -11,7 +11,6 @@ export default function CarouselBanner() {
   let fetchData = async () => {
     try {
       let res = await getBanner();
-      console.log(res.data);
       setBanner(res.data);
     } catch (err) {
       message.error("Something wrong");

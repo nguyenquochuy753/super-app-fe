@@ -5,7 +5,10 @@ import moment from "moment/moment";
 import { NavLink } from "react-router-dom";
 import "./tabsMovie.scss";
 import { useDispatch, useSelector } from "react-redux";
-import { handleLoadingOff, handleLoadingOn } from "../../../redux/reducer/spinnerSlice";
+import {
+  handleLoadingOff,
+  handleLoadingOn,
+} from "../../../redux/reducer/spinnerSlice";
 
 export default function TabsMovieDesktop() {
   const [danhSachHeThongRap, setDanhSachHeThongRap] = useState([]);
@@ -16,7 +19,7 @@ export default function TabsMovieDesktop() {
     let fetchDataMovieTheater = async () => {
       try {
         let res = await getMovieTheater();
-        setDanhSachHeThongRap(res.data.content);
+        setDanhSachHeThongRap(res.data);
         setTimeout(() => {
           dispatch(handleLoadingOff());
         }, 1000);
@@ -30,28 +33,43 @@ export default function TabsMovieDesktop() {
   let handleRenderLichChieu = (dsPhim) => {
     return dsPhim.map((phim, index) => {
       return (
-        <div key={index} className='mb-4 pb-5 border-b-2 border-b-zinc-200'>
-          <div className='flex items-center mb-5'>
-            <img loading='lazy' src={phim.hinhAnh} style={{ width: 60 }} alt='...' />
-            <div className='ml-5'>
-              <p className='md:text-lg lg:text-xl font-semibold '>{phim.tenPhim}</p>
+        <div key={index} className="mb-4 pb-5 border-b-2 border-b-zinc-200">
+          <div className="flex items-center mb-5">
+            <img
+              loading="lazy"
+              src={phim.movieImage}
+              style={{ width: 60 }}
+              alt="..."
+            />
+            <div className="ml-5">
+              <p className="md:text-lg lg:text-xl font-semibold ">
+                {phim.movieName}
+              </p>
               <p>120 Phút</p>
             </div>
           </div>
-          <div className='grid grid-cols-1  md:gap-3 lg:grid-cols-2 lg:gap-4 xl:gap-5'>
-            {phim.lstLichChieuTheoPhim.slice(0, 8).map((gioChieu, index) => {
+          <div className="grid grid-cols-1  md:gap-3 lg:grid-cols-2 lg:gap-4 xl:gap-5">
+            {phim.showtimesByMovie.slice(0, 8).map((gioChieu, index) => {
               return (
-                <NavLink key={index} to={info ? `/ticketroom/${gioChieu.maLichChieu}` : `/login`}>
+                <NavLink
+                  key={index}
+                  to={info ? `/ticketroom/${gioChieu.showtimesId}` : `/login`}
+                >
                   <div
-                    id='btnDatVe'
+                    id="btnDatVe"
                     style={{
                       borderColor: "#e4e4e4",
                       background: `rgba(246,246,246,0.5)`,
                     }}
-                    className='font-semibold  px-3 py-1 text-center border duration-300 hover:scale-105 cursor-pointer'>
-                    <span className='text-gray-400'>{moment(gioChieu.ngayChieuGioChieu).format("LL")}</span>
+                    className="font-semibold  px-3 py-1 text-center border duration-300 hover:scale-105 cursor-pointer"
+                  >
+                    <span className="text-gray-400">
+                      {moment(gioChieu.premiereDate).format("LL")}
+                    </span>
                     <span> - </span>
-                    <span className='text-green-500 gioChieu'>{moment(gioChieu.ngayChieuGioChieu).format("LT")}</span>
+                    <span className="text-green-500 gioChieu">
+                      {moment(gioChieu.premiereDate).format("LT")}
+                    </span>
                   </div>
                 </NavLink>
               );
@@ -65,31 +83,45 @@ export default function TabsMovieDesktop() {
     return danhSachHeThongRap.map((heThongRap, index) => {
       return {
         key: index,
-        label: <img src={heThongRap.logo} className='w-16' alt='...' />,
+        label: <img src={heThongRap.logo} className="w-16" alt="..." />,
         children: (
           <Tabs
             style={{ height: 600 }}
-            className='pl-0'
-            tabPosition='left'
-            defaultActiveKey='1'
-            items={heThongRap.lstCumRap.map((cumRap, index) => {
+            className="pl-0"
+            tabPosition="left"
+            defaultActiveKey="1"
+            items={heThongRap.listTheaterComplex.map((cumRap, index) => {
               return {
-                key: cumRap.tenCumRap,
+                key: cumRap.theaterComplexId,
                 label: (
-                  <div className='text-left ' key={index}>
+                  <div className="text-left " key={index}>
                     <p
                       style={{ color: "#108f3e" }}
-                      className='text-green-500 text-left font-semibold md:text-base lg:text-lg hover:text-green-700 duration-300'>
-                      {cumRap.tenCumRap}
+                      className="text-green-500 text-left font-semibold md:text-base lg:text-lg hover:text-green-700 duration-300"
+                    >
+                      {cumRap.theaterComplexName}
                     </p>
-                    <Popover content={<span className='text-gray-400'>{cumRap.diaChi}</span>}>
-                      <span className='text-gray-300'>{cumRap.diaChi.length > 30 ? cumRap.diaChi.slice(0, 30) + "..." : cumRap.diaChi}</span>
+                    <Popover
+                      content={
+                        <span className="text-gray-400">
+                          {cumRap.theaterComplexAddress}
+                        </span>
+                      }
+                    >
+                      <span className="text-gray-300">
+                        {cumRap.theaterComplexAddress.length > 30
+                          ? cumRap.theaterComplexAddress.slice(0, 30) + "..."
+                          : cumRap.theaterComplexAddress}
+                      </span>
                     </Popover>
                   </div>
                 ),
                 children: (
-                  <div className='listPhim p-3 overflow-y-scroll' style={{ height: 600 }}>
-                    {handleRenderLichChieu(cumRap.danhSachPhim)}
+                  <div
+                    className="listPhim p-3 overflow-y-scroll"
+                    style={{ height: 600 }}
+                  >
+                    {handleRenderLichChieu(cumRap.listMovie)}
                   </div>
                 ),
               };
@@ -100,12 +132,12 @@ export default function TabsMovieDesktop() {
     });
   };
   return (
-    <div id='cinema__complex' className='containerTabs'>
+    <div id="cinema__complex" className="containerTabs">
       <Tabs
-        className='shadow-xl rounded'
+        className="shadow-xl rounded"
         style={{ border: "1px solid #ccc" }}
-        tabPosition='left'
-        defaultActiveKey='1'
+        tabPosition="left"
+        defaultActiveKey="1"
         items={handleRenderHeThongRap()}
       />
     </div>

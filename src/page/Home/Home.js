@@ -9,7 +9,7 @@ import { FloatButton } from "antd";
 
 export default function Home() {
   return (
-    <div className='space-y-20'>
+    <div className="space-y-20">
       <Carousel />
       <FeaturesMovie />
       <DetailMovie />
@@ -17,11 +17,11 @@ export default function Home() {
       <LatestNew />
       <Footer />
       <FloatButton.BackTop
-        shape='square'
+        shape="square"
         icon={
-          <i className='fa-solid fa-arrow-up hover:text-white duration-300'></i>
+          <i className="fa-solid fa-arrow-up hover:text-white duration-300"></i>
         }
-        className=' hover:bg-orange-500 duration-300'
+        className=" hover:bg-orange-500 duration-300"
       />
     </div>
   );

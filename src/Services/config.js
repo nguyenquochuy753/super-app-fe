@@ -8,6 +8,10 @@ import {
 
 export const BASE_URL = "https://movienew.cybersoft.edu.vn/api/";
 export const MOVIE_URL = "http://localhost:2000/api/";
+export const SHOWTIME_URL = "http://localhost:2002/api/";
+export const CINEMA_URL = "http://localhost:8001/";
+export const USER_URL = "http://localhost:8000/";
+export const TICKET_URL = "http://localhost:2003/api/";
 
 export const TOKEN_CYBER =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0ZW5Mb3AiOiJoYWNrZXIiLCJIZXRIYW5TdHJpbmciOiIxMi8xMi8yMDI1IiwiSGV0SGFuVGltZSI6IjE3NjU0NzI0MDAwMDAiLCJpYXQiOjE3MDIzNTg4NTcsImV4cCI6MTcwMjM1OTQ1N30.q0H9Y1q7OB7Y7JoAPumlXATPbMYgMeGpkC_bkAsHP6Q";
@@ -17,10 +21,42 @@ export const configHeaders = () => {
 };
 
 // axios instance
-export const https = axios.create({
+export const httpsDefault = axios.create({
   baseURL: BASE_URL,
   headers: {
     TokenCybersoft: TOKEN_CYBER,
+    Authorization: "Bearer " + localService.get()?.accessToken,
+  },
+});
+
+export const httpsShowtime = axios.create({
+  baseURL: SHOWTIME_URL,
+  headers: {
+    // TokenCybersoft: TOKEN_CYBER,
+    Authorization: "Bearer " + localService.get()?.accessToken,
+  },
+});
+
+export const httpsCinema = axios.create({
+  baseURL: CINEMA_URL,
+  headers: {
+    // TokenCybersoft: TOKEN_CYBER,
+    Authorization: "Bearer " + localService.get()?.accessToken,
+  },
+});
+
+export const httpsTicket = axios.create({
+  baseURL: TICKET_URL,
+  headers: {
+    // TokenCybersoft: TOKEN_CYBER,
+    Authorization: "Bearer " + localService.get()?.accessToken,
+  },
+});
+
+export const https = axios.create({
+  baseURL: USER_URL,
+  headers: {
+    // TokenCybersoft: TOKEN_CYBER,
     Authorization: "Bearer " + localService.get()?.accessToken,
   },
 });

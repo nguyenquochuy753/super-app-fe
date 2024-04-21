@@ -15,7 +15,7 @@ const bookingReducer = createSlice({
   reducers: {
     addTicket: (state, action) => {
       let index = state.danhSachGheDangDat.findIndex((item) => {
-        return item.maGhe === action.payload.maGhe;
+        return item._id === action.payload._id;
       });
 
       if (index !== -1) {

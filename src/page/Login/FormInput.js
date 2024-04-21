@@ -13,8 +13,8 @@ export default function FormInput() {
     let logIn = async () => {
       try {
         let res = await dangNhap(values);
-        dispatch(setInfo(res.data.content));
-        localService.set(res.data.content);
+        dispatch(setInfo(res.data));
+        localService.set(res.data);
         message.success("Đăng nhập thành công");
         setTimeout(() => {
           navigate("/");
@@ -32,8 +32,8 @@ export default function FormInput() {
 
   return (
     <Form
-      layout='vertical'
-      name='basic'
+      layout="vertical"
+      name="basic"
       labelCol={{
         span: 12,
       }}
@@ -48,11 +48,11 @@ export default function FormInput() {
       }}
       onFinish={onFinish}
       onFinishFailed={onFinishFailed}
-      autoComplete='off'
+      autoComplete="off"
     >
       <Form.Item
-        label='Tài khoản'
-        name='taiKhoan'
+        label="Tài khoản"
+        name="email"
         rules={[
           {
             required: true,
@@ -64,8 +64,8 @@ export default function FormInput() {
       </Form.Item>
 
       <Form.Item
-        label='Mật khẩu'
-        name='matKhau'
+        label="Mật khẩu"
+        name="password"
         rules={[
           {
             required: true,
@@ -83,9 +83,9 @@ export default function FormInput() {
       </Form.Item>
 
       <Form.Item
-        className=' text-left'
-        name='remember'
-        valuePropName='checked'
+        className=" text-left"
+        name="remember"
+        valuePropName="checked"
         wrapperCol={{
           span: 24,
         }}
@@ -99,9 +99,9 @@ export default function FormInput() {
         }}
       >
         <Button
-          type='undefined'
-          htmlType='submit'
-          className='bg-orange-400 hover:bg-orange-500 w-full shadow-md'
+          type="undefined"
+          htmlType="submit"
+          className="bg-orange-400 hover:bg-orange-500 w-full shadow-md"
         >
           Đăng nhập
         </Button>

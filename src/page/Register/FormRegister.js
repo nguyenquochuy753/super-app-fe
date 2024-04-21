@@ -55,85 +55,19 @@ export default function FormRegister() {
   return (
     <Form
       {...formItemLayout}
-      layout='vertical'
+      layout="vertical"
       form={form}
-      name='register'
+      name="register"
       onFinish={onFinish}
-      className='grid-cols-1 md:grid md:grid-cols-2 md:gap-4 lg:grid-cols-2 lg:gap-4 xl:grid-cols-2 xl:gap-4'
+      className="grid-cols-1 md:grid md:grid-cols-2 md:gap-4 lg:grid-cols-2 lg:gap-4 xl:grid-cols-2 xl:gap-4"
       style={{
         width: "100%",
       }}
       scrollToFirstError
     >
       <Form.Item
-        label='Tài Khoản'
-        name='taiKhoan'
-        rules={[
-          {
-            required: true,
-            message: "Vui lòng nhập tài khoản !",
-          },
-        ]}
-      >
-        <Input placeholder='Tài khoản' />
-      </Form.Item>
-
-      <Form.Item
-        name='matKhau'
-        label='Mật khẩu'
-        rules={[
-          {
-            required: true,
-            message: "Vui lòng nhập mật khẩu!",
-          },
-        ]}
-        hasFeedback
-      >
-        <Input.Password
-          placeholder='Mật khẩu'
-          style={{
-            borderRadius: 0,
-            borderColor: "#6B7280",
-            padding: "0.5rem 0.75rem",
-          }}
-        />
-      </Form.Item>
-
-      <Form.Item
-        name='confirm'
-        label='Nhập lại mật khẩu'
-        dependencies={["matKhau"]}
-        hasFeedback
-        rules={[
-          {
-            required: true,
-            message: "Vui lòng nhập lại mật khẩu!",
-          },
-          ({ getFieldValue }) => ({
-            validator(_, value) {
-              if (!value || getFieldValue("matKhau") === value) {
-                return Promise.resolve();
-              }
-              return Promise.reject(
-                new Error("Mật khẩu mà bạn nhập không khớp!"),
-              );
-            },
-          }),
-        ]}
-      >
-        <Input.Password
-          placeholder='Nhập lại mật khẩu'
-          style={{
-            borderRadius: 0,
-            borderColor: "#6B7280",
-            padding: "0.5rem 0.75rem",
-          }}
-        />
-      </Form.Item>
-
-      <Form.Item
-        name='email'
-        label='E-mail'
+        name="email"
+        label="E-mail"
         rules={[
           {
             type: "email",
@@ -145,12 +79,12 @@ export default function FormRegister() {
           },
         ]}
       >
-        <Input placeholder='E-mail' />
+        <Input placeholder="E-mail" />
       </Form.Item>
 
       <Form.Item
-        name='hoTen'
-        label='Họ tên'
+        name="fullname"
+        label="Họ tên"
         rules={[
           {
             required: true,
@@ -159,12 +93,78 @@ export default function FormRegister() {
           },
         ]}
       >
-        <Input placeholder='Họ tên' />
+        <Input placeholder="Họ tên" />
+      </Form.Item>
+
+      {/* <Form.Item
+        label='Tài Khoản'
+        name='taiKhoan'
+        rules={[
+          {
+            required: true,
+            message: "Vui lòng nhập tài khoản !",
+          },
+        ]}
+      >
+        <Input placeholder='Tài khoản' />
+      </Form.Item> */}
+
+      <Form.Item
+        name="password"
+        label="Mật khẩu"
+        rules={[
+          {
+            required: true,
+            message: "Vui lòng nhập mật khẩu!",
+          },
+        ]}
+        hasFeedback
+      >
+        <Input.Password
+          placeholder="Mật khẩu"
+          style={{
+            borderRadius: 0,
+            borderColor: "#6B7280",
+            padding: "0.5rem 0.75rem",
+          }}
+        />
       </Form.Item>
 
       <Form.Item
-        name='soDt'
-        label='Số điện thoại'
+        name="confirm"
+        label="Nhập lại mật khẩu"
+        dependencies={["password"]}
+        hasFeedback
+        rules={[
+          {
+            required: true,
+            message: "Vui lòng nhập lại mật khẩu!",
+          },
+          ({ getFieldValue }) => ({
+            validator(_, value) {
+              if (!value || getFieldValue("password") === value) {
+                return Promise.resolve();
+              }
+              return Promise.reject(
+                new Error("Mật khẩu mà bạn nhập không khớp!")
+              );
+            },
+          }),
+        ]}
+      >
+        <Input.Password
+          placeholder="Nhập lại mật khẩu"
+          style={{
+            borderRadius: 0,
+            borderColor: "#6B7280",
+            padding: "0.5rem 0.75rem",
+          }}
+        />
+      </Form.Item>
+
+      {/* <Form.Item
+        name="soDt"
+        label="Số điện thoại"
         rules={[
           {
             required: true,
@@ -173,14 +173,14 @@ export default function FormRegister() {
           },
         ]}
       >
-        <Input placeholder='Số điện thoại' />
-      </Form.Item>
+        <Input placeholder="Số điện thoại" />
+      </Form.Item> */}
 
-      <Form.Item className='col-span-2' {...tailFormItemLayout}>
+      <Form.Item className="col-span-2" {...tailFormItemLayout}>
         <Button
-          type='undefined'
-          htmlType='submit'
-          className='w-full bg-orange-400 hover:bg-orange-500 duration-300 shadow-md'
+          type="undefined"
+          htmlType="submit"
+          className="w-full bg-orange-400 hover:bg-orange-500 duration-300 shadow-md"
         >
           Đăng ký
         </Button>

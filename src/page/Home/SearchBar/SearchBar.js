@@ -14,7 +14,9 @@ export default function SearchBar() {
   const [maLichChieu, setMaLichChieu] = useState(null);
   const [maCumRap, setMaCumRap] = useState(null);
   const [disableBtn, setDisableBtn] = useState(true);
-  const [classBtnBuy, setClassBtnBuy] = useState("cursor-no-drop bg-zinc-500 text-white");
+  const [classBtnBuy, setClassBtnBuy] = useState(
+    "cursor-no-drop bg-zinc-500 text-white"
+  );
 
   let navigate = useNavigate();
   const infoNgayChieu = [];
@@ -26,7 +28,7 @@ export default function SearchBar() {
     let fetchData = async () => {
       try {
         let res = await getListMovie();
-        setListMovie(res.data.content);
+        setListMovie(res.data);
       } catch (err) {
         console.log(err);
       }
@@ -38,23 +40,25 @@ export default function SearchBar() {
       return (
         <Fragment key={index}>
           <Select.Option
-            className='text-xs font-bold sm:text-sm md:text-base'
-            value={item.maPhim}
-            label={item.tenPhim}>
+            className="text-xs font-bold sm:text-sm md:text-base"
+            value={item._id}
+            label={item.name}
+          >
             <Popover
-              trigger='hover'
-              placement='right'
+              trigger="hover"
+              placement="right"
               content={
-                <div className='relative'>
-                  <img loading='lazy' src={item.hinhAnh} width={150} alt='...' />
-                  <NavLink to={`/detail/${item.maPhim}`}>
-                    <button className='absolute left-1/2 bottom-0 translate-x-[-50%] rounded  px-3 py-1 bg-orange-400 text-white hover:bg-orange-500 duration-300'>
-                      <span>Detail</span>
+                <div className="relative">
+                  <img loading="lazy" src={item.image} width={150} alt="..." />
+                  <NavLink to={`/detail/${item._id}`}>
+                    <button className="absolute left-1/2 bottom-0 translate-x-[-50%] rounded  px-3 py-1 bg-orange-400 text-white hover:bg-orange-500 duration-300">
+                      <span>Chi Tiết</span>
                     </button>
                   </NavLink>
                 </div>
-              }>
-              <div>{item.tenPhim}</div>
+              }
+            >
+              <div>{item.name}</div>
             </Popover>
           </Select.Option>
         </Fragment>
@@ -72,7 +76,7 @@ export default function SearchBar() {
     let fetchInfoShowtimes = async () => {
       try {
         let res = await getInfoShowtimes(value);
-        setLichChieuPhim(res.data.content);
+        setLichChieuPhim(res.data);
       } catch (err) {
         console.log(err);
       }
@@ -80,17 +84,18 @@ export default function SearchBar() {
     fetchInfoShowtimes();
   };
   let renderLichChieuPhim = () => {
-    return lichChieuPhim.heThongRapChieu?.map((item, index) => {
+    return lichChieuPhim.cinemaByMovie?.map((item, index) => {
       return (
         <Fragment key={index}>
-          {item.cumRapChieu?.map((tenRap, index) => {
+          {item.theaterComplexByMovie?.map((tenRap, index) => {
             infoNgayChieu.push(tenRap);
             return (
               <Fragment key={index}>
                 <Select.Option
-                  className='text-xs font-bold sm:text-sm md:text-base'
-                  value={tenRap.maCumRap}>
-                  {tenRap.tenCumRap}
+                  className="text-xs font-bold sm:text-sm md:text-base"
+                  value={tenRap.theaterComplexId}
+                >
+                  {tenRap.theaterComplexName}
                 </Select.Option>
               </Fragment>
             );
@@ -105,16 +110,17 @@ export default function SearchBar() {
   };
   let renderNgayChieu = () => {
     return infoNgayChieu?.map((item, index) => {
-      if (item.maCumRap === maCumRap) {
+      if (item.theaterComplexId === maCumRap) {
         return (
           <Fragment key={index}>
-            {item.lichChieuPhim?.map((ngayChieu, index) => {
+            {item.showtimes?.map((ngayChieu, index) => {
               return (
                 <Fragment key={index}>
                   <Select.Option
-                    className='text-xs font-bold sm:text-sm md:text-base'
-                    value={ngayChieu.maLichChieu}>
-                    {moment(ngayChieu.ngayChieuGioChieu).format("lll")}
+                    className="text-xs font-bold sm:text-sm md:text-base"
+                    value={ngayChieu._id}
+                  >
+                    {moment(ngayChieu.premiereDate).format("lll")}
                   </Select.Option>
                 </Fragment>
               );
@@ -160,9 +166,10 @@ export default function SearchBar() {
       style={{
         zIndex: "10",
       }}
-      id='searchBar'
-      className='shadow-xl h-12 md:h-20 rounded flex items-center p-4 md:p-2 bg-white absolute md:w-[80%] lg:w-[60%] lg:left-[20%] left-[10%] md:left-[10%] top-[92%] '>
-      <div id='movieName' className='w-[30%]'>
+      id="searchBar"
+      className="shadow-xl h-12 md:h-20 rounded flex items-center p-4 md:p-2 bg-white absolute md:w-[80%] lg:w-[60%] lg:left-[20%] left-[10%] md:left-[10%] top-[92%] "
+    >
+      <div id="movieName" className="w-[30%]">
         <Select
           defaultValue={"Tìm phim..."}
           allowClear={true}
@@ -170,12 +177,13 @@ export default function SearchBar() {
           bordered={false}
           showSearch={true}
           filterOption={filterOption}
-          className='w-full font-bold text-xs sm:text-sm md:text-base text'>
+          className="w-full font-bold text-xs sm:text-sm md:text-base text"
+        >
           <Select.Option value={0}>Phim</Select.Option>
           {renderListMovie()}
         </Select>
       </div>
-      <div id='cinemaComplex' style={{ width: "25%" }}>
+      <div id="cinemaComplex" style={{ width: "25%" }}>
         <Select
           disabled={movieSelected === null}
           allowClear={true}
@@ -185,22 +193,27 @@ export default function SearchBar() {
             label: maCumRap === null ? "Chọn rạp phim" : maCumRap.tenCumRap,
             value: maCumRap,
           }}
-          className='w-full font-bold text-xs sm:text-sm md:text-base'>
+          className="w-full font-bold text-xs sm:text-sm md:text-base"
+        >
           <Select.Option value={0}>Cụm rạp</Select.Option>
           {renderLichChieuPhim()}
         </Select>
       </div>
-      <div id='showTimes' style={{ width: "25%" }}>
+      <div id="showTimes" style={{ width: "25%" }}>
         <Select
           allowClear={true}
           bordered={false}
           disabled={maCumRap === null}
           value={{
-            label: maLichChieu === null ? "Chọn suất chiếu" : maLichChieu.ngayChieuGioChieu,
+            label:
+              maLichChieu === null
+                ? "Chọn suất chiếu"
+                : maLichChieu.ngayChieuGioChieu,
             value: maLichChieu,
           }}
           onChange={handleChangeNgayChieu}
-          className='w-full  text-xs sm:text-sm md:text-base'>
+          className="w-full  text-xs sm:text-sm md:text-base"
+        >
           <Select.Option value={0}>Lịch chiếu</Select.Option>
           {renderNgayChieu()}
         </Select>
@@ -210,7 +223,8 @@ export default function SearchBar() {
           onClick={handleCheckingLogin}
           disabled={disableBtn}
           className={`ml-3 py-2 font-bold rounded ${classBtnBuy} duration-300 text-xs md:text-base`}
-          style={{ width: "80%" }}>
+          style={{ width: "80%" }}
+        >
           Mua vé
         </button>
       </div>
