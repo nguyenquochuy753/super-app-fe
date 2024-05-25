@@ -99,11 +99,7 @@ export default function Header() {
         <nav>
           <div className="logo">
             <NavLink to={"/"}>
-              <img
-                src="../image/logo_2.png"
-                className="w-24 sm:w-36"
-                alt="..."
-              />
+              <img src="../image/logo.png" className="w-24 sm:w-36" alt="..." />
             </NavLink>
           </div>
           <input type="checkbox" id="menu-toggle" />

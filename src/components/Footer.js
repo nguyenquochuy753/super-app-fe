@@ -15,7 +15,7 @@ export default function Footer() {
           <div>
             <img
               loading="lazy"
-              src="../image/logo_movie.png"
+              src="../image/logo.png"
               className="mb-4 md:mt-8"
               alt="..."
             />

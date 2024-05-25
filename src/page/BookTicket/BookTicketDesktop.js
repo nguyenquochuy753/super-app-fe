@@ -1,6 +1,11 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
-import { bookTicket, createTicket, getTicketRoom } from "../../Services/api";
+import {
+  bookTicket,
+  createTicket,
+  getTicketRoom,
+  createPayment,
+} from "../../Services/api";
 import "./ticket.scss";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -44,6 +49,7 @@ export default function BookTicketDesktop() {
   }, []);
 
   const handleBookTicket = async () => {
+    // console.log(radioValue);
     let thongTinDatVe = new ThongTinDatVe();
     thongTinDatVe.user = localService.get()?._id;
     thongTinDatVe.listSeat = danhSachGheDangDat.map((seat) => seat._id);
@@ -63,11 +69,13 @@ export default function BookTicketDesktop() {
           "Vui lòng kiểm tra lịch sử đặt vé.",
           "success"
         );
-        await createTicket({
+        const newTicket = await createTicket({
           user: localService.get()?._id,
           showtimeId: param.id,
           seatId: danhSachGheDangDat.map((seat) => seat._id),
+          paymentMethod: radioValue == 3 ? "atm" : "cash",
         });
+
         await bookTicket({
           user: localService.get()?._id,
           listSeat: danhSachGheDangDat.map((seat) => seat._id),
@@ -81,6 +89,17 @@ export default function BookTicketDesktop() {
           .catch((err) => {
             console.log(err.response.data.content);
           });
+        if (radioValue == 3) {
+          const payURL = await createPayment({
+            orderId: newTicket.data._id,
+            amount: danhSachGheDangDat.reduce((tongTien, giaVe) => {
+              return (tongTien += giaVe.price);
+            }, 0),
+            bankCode: "VNBANK",
+            language: "vn",
+          });
+          window.location.href = payURL.data;
+        }
       } else if (result.isDenied) {
         Swal.fire("Bạn có muốn mua thêm vé không ?", "", "info");
       }

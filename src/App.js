@@ -10,6 +10,7 @@ import Loading from "./components/Loading";
 import UserInfo from "./page/UserInfo/UserInfo";
 import PageNotFound from "./page/Page_404/PageNotFound";
 import "moment/locale/vi";
+import PageSuccess from "./page/Success/pageSuccess";
 
 const userRoutes = [
   {
@@ -60,6 +61,14 @@ const userRoutes = [
       </Layout>
     ),
   },
+  {
+    path: "/success/:id",
+    element: (
+      <Layout>
+        <PageSuccess />
+      </Layout>
+    ),
+  },
   { path: "*", element: <PageNotFound /> },
 ];
 
@@ -70,7 +79,9 @@ function App() {
       <BrowserRouter>
         <Routes>
           {userRoutes.map((route, index) => {
-            return <Route key={index} path={route.path} element={route.element} />;
+            return (
+              <Route key={index} path={route.path} element={route.element} />
+            );
           })}
         </Routes>
       </BrowserRouter>

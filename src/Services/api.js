@@ -6,6 +6,7 @@ import {
   https,
   httpsCinema,
   httpsDefault,
+  httpsPayment,
   httpsShowtime,
   httpsTicket,
   MOVIE_URL,
@@ -41,14 +42,14 @@ export let userRegister = (values) => {
 };
 export let getMovieTheater = () => {
   return axios({
-    url: `${CINEMA_URL}cinemaSystem/theatercomplex`,
+    url: `${CINEMA_URL}cinemaSystem/theatercomplexclient`,
     method: "GET",
     headers: configHeaders(),
   });
 };
 export let getInfoShowtimes = (id) => {
   return axios({
-    url: `${CINEMA_URL}cinemaSystem/movies/${id}`,
+    url: `${CINEMA_URL}cinemaSystem/moviesclient/${id}`,
     method: "GET",
     headers: configHeaders(),
   });
@@ -62,6 +63,14 @@ export let bookTicket = (values) => {
 
 export let createTicket = (values) => {
   return httpsTicket.post("ticket/create", values);
+};
+
+export let updateTicket = (id, values) => {
+  return httpsTicket.patch(`ticket/${id}`, values);
+};
+
+export let createPayment = (values) => {
+  return httpsPayment.post("create_payment_url", values);
 };
 
 export let getThongTinTaiKhoan = (id) => {
